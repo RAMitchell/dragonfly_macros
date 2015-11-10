@@ -1,53 +1,102 @@
-#
-# This file is a command-module for Dragonfly.
-# (c) Copyright 2008 by Christo Butcher
-# Licensed under the LGPL, see <http://www.gnu.org/licenses/>
-#
-# Modified by David Gessner
-# Contains some code obtained from
-# https://github.com/danielgm/JarvisGrammars/blob/master/vim.py
-
-"""
-Command-module for the vim editor
-============================================================================
-
-This module allows the user to control the vim text editor.
-
-
-Discussion of this module
-----------------------------------------------------------------------------
-
-This command-module creates a powerful voice command for
-editing and cursor movement.  This command's structure can
-be represented by the following simplified language model:
-
- - *CommandRule* -- top-level rule which the user can say
-    - *repetition* -- sequence of actions (name = "sequence")
-       - *NormalModeKeystrokeRule* -- rule that maps a single
-         spoken-form to an action
-    - *optional* -- optional specification of repeat count
-       - *integer* -- repeat count (name = "n")
-       - *literal* -- "times"
-
-The top-level command rule has a callback method which is
-called when this voice command is recognized.  The logic
-within this callback is very simple:
-
-1. Retrieve the sequence of actions from the element with
-   the name "sequence".
-2. Retrieve the repeat count from the element with the name
-   "n".
-3. Execute the actions the specified number of times.
-
-"""
-
-try:
-    import pkg_resources
-    pkg_resources.require("dragonfly >= 0.6.5beta1.dev-r99")
-except ImportError:
-    pass
-
 from dragonfly import *
+
+class InsertModeEnabler(CompoundRule):
+    spec = "<command>"
+    extras = [Choice("command", {
+
+        "insert": "i",
+        "shift insert": "I",
+
+        "change": "c",
+        "change whiskey": "c,w",
+        "change (echo|end)": "c,e",
+        "change a paragraph": "c,a,p",
+        "change inner paragraph": "c,i,p",
+        "change a (paren|parenthesis|raip|laip)": "c,a,rparen",
+        "change inner (paren|parenthesis|raip|laip)": "c,i,rparen",
+        "shift change": "C",
+
+        "sub line" : "S",
+
+        "(after | append)": "a",
+        "shift (after | append)": "A",
+
+        "oh": "o",
+        "shift oh": "O",
+
+	# Jedi vim rename command
+	"rename": "backslash,r",
+    })]
+
+    def _process_recognition(self, node, extras):
+        InsertModeBootstrap.disable()
+        normalModeGrammar.disable()
+        InsertModeGrammar.enable()
+        for string in extras["command"].split(','):
+            key = Key(string)
+            key.execute()
+        print "Available commands:"
+        print '  \n'.join(InsertModeCommands.mapping.keys())
+        print "\n(INSERT)"
+
+
+
+class InsertModeDisabler(CompoundRule):
+    # spoken command to exit InsertMode
+    spec = "<command>"
+    extras = [Choice("command", {
+        "done": "okay",
+        "cancel": "cancel",
+    })]
+
+    def _process_recognition(self, node, extras):
+        InsertModeGrammar.disable()
+        InsertModeBootstrap.enable()
+        normalModeGrammar.enable()
+        Key("escape").execute()
+        if extras["command"] == "cancel":
+		Key("u:2").execute()
+		print "Insert command canceled"
+        else:
+            print "Insert command accepted"
+        print "\n(NORMAL)"
+
+
+# handles InsertMode control structures
+class InsertModeCommands(MappingRule):
+    mapping  = {
+	"slap": Key("enter"),
+        "[<n>] (scratch|delete)": Key("c-w:%(n)d"),
+        "[<n>] tab": Key("tab:%(n)d"),
+        "[<n>] backspace": Key("backspace:%(n)d"),
+        "(scratch|delete) line": Key("c-u"),
+        "[<n>] left": Key("left:%(n)d"),
+        "[<n>] right": Key("right:%(n)d"),
+
+	"assign": Key("space,equal,space"),
+	"plus": Key("space,plus,space"),
+	"minus": Key("space,minus,space"),
+	"times": Key("space,asterisk,space"),
+	"equals": Key("space,equal,equal,space"),
+	"not equals": Key("space,exclamation,equal,space"),
+	"triple quote": Key("dquote,dquote,dquote"),
+	"ref": Key("asterisk"),
+
+	#C++
+	"int": Text("int "),
+	"for loop": Text("for(int i = 0; i < y; i++)"),
+	"include": Text("#include <>") + Key("left"),
+	"include local": Text('#include ""') + Key("left"),
+	"pragma once": Text("#pragma once"),
+
+    }
+    extras = [
+        Dictation("text"),
+        IntegerRef("n", 1, 50),
+    ]
+    defaults = {
+        "n": 1,
+    }
 
 
 #---------------------------------------------------------------------------
@@ -178,55 +227,6 @@ def executeLetterSequence(letter_sequence):
     for letter in letter_sequence:
         letter.execute()
 
-#---------------------------------------------------------------------------
-# Set up this module's configuration.
-
-# This defines a configuration object with the name "gvim".
-config            = Config("gvim")
-config.cmd        = Section("Language section")
-
-
-# This searches for a file with the same name as this file (gvim.py), but with
-# the extension ".py" replaced by ".txt". In other words, it loads the
-# configuration specified in the file gvim.txt
-namespace = config.load()
-
-#---------------------------------------------------------------------------
-# Here we prepare the list of formatting functions from the config file.
-
-# Retrieve text-formatting functions from this module's config file.
-#  Each of these functions must have a name that starts with "format_".
-format_functions = {}
-if namespace:
-    for name, function in namespace.items():
-     if name.startswith("format_") and callable(function):
-        spoken_form = function.__doc__.strip()
-
-        # We wrap generation of the Function action in a function so
-        #  that its *function* variable will be local.  Otherwise it
-        #  would change during the next iteration of the namespace loop.
-        def wrap_function(function):
-            def _function(dictation):
-                formatted_text = function(dictation)
-                Text(formatted_text).execute()
-            return Function(_function)
-
-        action = wrap_function(function)
-        format_functions[spoken_form] = action
-
-
-# Here we define the text formatting rule.
-# The contents of this rule were built up from the "format_*"
-#  functions in this module's config file.
-if format_functions:
-    class FormatRule(MappingRule):
-
-        mapping  = format_functions
-        extras   = [Dictation("dictation")]
-
-else:
-    FormatRule = None
-
 
 #---------------------------------------------------------------------------
 # Here we define the keystroke rule.
@@ -248,7 +248,7 @@ class NormalModeKeystrokeRule(MappingRule):
     exported = False
 
     mapping = {
-        "slap": Key("enter"),
+
         "[<n>] up": Key("k:%(n)d"),
         "[<n>] down": Key("j:%(n)d"),
         "[<n>] down": Key("j:%(n)d"),
@@ -256,11 +256,6 @@ class NormalModeKeystrokeRule(MappingRule):
         "[<n>] right": Key("l:%(n)d"),
         "[<n>] go up": Key("c-b:%(n)d"),
         "[<n>] go down": Key("c-f:%(n)d"),
-        "hat": Key("caret"),
-        "dollar": Key("dollar"),
-        "match": Key("percent"),
-        "doc home": Key("c-home"),
-        "doc end": Key("c-end"),
 
 	"home": Key("home"),
 	"end": Key("end"),
@@ -318,6 +313,8 @@ class NormalModeKeystrokeRule(MappingRule):
         "[<n>] undo": Key("u:%(n)d"),
         "[<n>] redo": Key("c-r:%(n)d"),
 
+	"mistake": Key("escape, u:2"),
+
         '[<n>] find <letter>': Text('%(n)df') + Function(executeLetter),
         '[<n>] shift find <letter>': Text('%(n)dF') + Function(executeLetter),
         'find [<n>] <letter>': Text('%(n)df') + Function(executeLetter),
@@ -347,18 +344,10 @@ class NormalModeKeystrokeRule(MappingRule):
 
         "fuzzy find": Key("backslash,t"),
 
-	#C++ specific
-	"compile": Key("colon, w, enter") + Key("colon, m, a, k, e, enter"),
-	"run": Key("colon, exclamation, a, dot, e, x, e, enter"),
-	"check errors": Key("colon, c, w, enter"),
-	"quit": Key("colon, q, enter"),
-
-	#registers
-	"copy register <letter>": Function(executeLetter) + Key("y"),
-	"register <letter>": Function(executeLetter) + Key("p"),
 
 	#shortcuts
-	"save": Key("colon, w, enter"),
+	"save": Key("colon/3, w, enter"),
+	"run": Key("s-f10"),
 
     }
     extras   = [
@@ -443,59 +432,8 @@ class NormalModeRepeatRule(CompoundRule):
         release.execute()
 
 
-#---------------------------------------------------------------------------
-
-gvim_window_rule = MappingRule(
-    name = "gvim_window",
-    mapping = {
-        # window navigation commands
-        "window left": Key("c-w,h"),
-        "window right": Key("c-w,l"),
-        "window up": Key("c-w,k"),
-        "window down": Key("c-w,j"),
-
-        # window creation commands
-        "window split": Key("c-w,s"),
-        "window vertical split": Key("c-w,v"),
-
-	#buffer management
-	"next buffer": Key("colon, b, n, enter"),
-
-	"previous buffer": Key("colon, b,  p, enter"),
-        },
-    extras = [
-        ]
-)
-
-#---------------------------------------------------------------------------
-
-gvim_tabulator_rule = MappingRule(
-    name = "gvim_tabulators",
-    mapping = {
-        # tabulator navigation commands
-        "tabulator next": Key("g,t"),
-        "tabulator previous": Key("g,T"),
-        },
-    extras = [
-        ]
-)
-
-#---------------------------------------------------------------------------
-
-gvim_general_rule = MappingRule(
-    name = "gvim_general",
-    mapping = {
-        "cancel": Key("escape,u"),
-
-        },
-    extras = [
-        ]
-)
-
-#---------------------------------------------------------------------------
-
-gvim_navigation_rule = MappingRule(
-    name = "gvim_navigation",
+navigation_rule = MappingRule(
+    name = "navigation",
     mapping = {
         "go first line": Key("g,g"),
         "go last line": Key("G"),
@@ -506,13 +444,19 @@ gvim_navigation_rule = MappingRule(
         "cursor (low | bottom)": Key("s-l"),
 
         # line navigation
-        "go <line>": Key("colon") + Text("%(line)s\n"),
+        "go <line>": Key("colon/3") + Text("%(line)s\r"),
+
+        "[<n>] next tab": Key("a-right:%(n)d"),
+        "next tab": Key("a-right"),
+        "previous tab": Key("a-left"),
 
         # searching
         "search": Key("slash"),
         "search this": Key("asterisk"),
         "back search <text>": Key("question") + Text("%(text)s\n"),
 
+        #ide shortcuts
+        "generate": Key("alt:down, insert, alt:up"),
         },
     extras = [
         Dictation("text"),
@@ -521,241 +465,35 @@ gvim_navigation_rule = MappingRule(
         ]
 )
 
-#---------------------------------------------------------------------------
 
 
-class ExModeEnabler(CompoundRule):
-    # Spoken command to enable the ExMode grammar.
-    spec = "execute"
+clion_context = AppContext(executable = "clion")
 
-    # Callback when command is spoken.
-    def _process_recognition(self, node, extras):
-        exModeBootstrap.disable()
-        normalModeGrammar.disable()
-        ExModeGrammar.enable()
-        Key("colon").execute()
-        print "ExMode grammar enabled"
-        print "Available commands:"
-        print '  \n'.join(ExModeCommands.mapping.keys())
-        print "\n(EX MODE)"
-
-
-
-class ExModeDisabler(CompoundRule):
-    # spoken command to exit ex mode
-    spec = "<command>"
-    extras = [Choice("command", {
-        "kay": "okay",
-        "cancel": "cancel",
-    })]
-
-    def _process_recognition(self, node, extras):
-        ExModeGrammar.disable()
-        exModeBootstrap.enable()
-        normalModeGrammar.enable()
-        if extras["command"] == "cancel":
-            print "ex mode command canceled"
-            Key("escape").execute()
-        else:
-            print "ex mode command accepted"
-            Key("enter").execute()
-        print "\n(NORMAL)"
-
-# handles ExMode control structures
-class ExModeCommands(MappingRule):
-    mapping  = {
-
-        "slap": Key("enter"),
-        "read": Text("r "),
-        "(write|save) file": Text("w "),
-        "quit": Text("q "),
-        "write and quit": Text("wq "),
-        "edit": Text("e "),
-        "tab edit": Text("tabe "),
-
-        "set number": Text("set number "),
-        "set relative number": Text("set relativenumber "),
-        "set ignore case": Text("set ignorecase "),
-        "set no ignore case": Text("set noignorecase "),
-        "set file format UNIX": Text("set fileformat=unix "),
-        "set file format DOS": Text("set fileformat=dos "),
-        "set file type Python": Text("set filetype=python"),
-        "set file type tex": Text("set filetype=tex"),
-
-        "P. W. D.": Text("pwd "),
-
-        "help": Text("help"),
-        "substitute": Text("s/"),
-        "up": Key("up"),
-        "down": Key("down"),
-        "[<n>] left": Key("left:%(n)d"),
-        "[<n>] right": Key("right:%(n)d"),
-    }
-    extras = [
-        Dictation("text"),
-        IntegerRef("n", 1, 50),
-    ]
-    defaults = {
-        "n": 1,
-    }
-
-
-#---------------------------------------------------------------------------
-
-class InsertModeEnabler(CompoundRule):
-    spec = "<command>"
-    extras = [Choice("command", {
-
-        "insert": "i",
-        "shift insert": "I",
-
-        "change": "c",
-        "change whiskey": "c,w",
-        "change (echo|end)": "c,e",
-        "change a paragraph": "c,a,p",
-        "change inner paragraph": "c,i,p",
-        "change a (paren|parenthesis|raip|laip)": "c,a,rparen",
-        "change inner (paren|parenthesis|raip|laip)": "c,i,rparen",
-        "shift change": "C",
-
-        "sub line" : "S",
-
-        "(after | append)": "a",
-        "shift (after | append)": "A",
-
-        "oh": "o",
-        "shift oh": "O",
-
-	# Jedi vim rename command
-	"rename": "backslash,r",
-    })]
-
-    def _process_recognition(self, node, extras):
-        InsertModeBootstrap.disable()
-        normalModeGrammar.disable()
-        InsertModeGrammar.enable()
-        for string in extras["command"].split(','):
-            key = Key(string)
-            key.execute()
-        print "Available commands:"
-        print '  \n'.join(InsertModeCommands.mapping.keys())
-        print "\n(INSERT)"
-
-
-
-class InsertModeDisabler(CompoundRule):
-    # spoken command to exit InsertMode
-    spec = "<command>"
-    extras = [Choice("command", {
-        "done": "okay",
-        "cancel": "cancel",
-    })]
-
-    def _process_recognition(self, node, extras):
-        InsertModeGrammar.disable()
-        InsertModeBootstrap.enable()
-        normalModeGrammar.enable()
-        Key("escape").execute()
-        if extras["command"] == "cancel":
-            Key("u").execute()
-            print "Insert command canceled"
-        else:
-            print "Insert command accepted"
-        print "\n(NORMAL)"
-
-
-# handles InsertMode control structures
-class InsertModeCommands(MappingRule):
-    mapping  = {
-	"slap": Key("enter"),
-        "[<n>] (scratch|delete)": Key("c-w:%(n)d"),
-        "[<n>] tab": Key("tab:%(n)d"),
-        "[<n>] backspace": Key("backspace:%(n)d"),
-        "(scratch|delete) line": Key("c-u"),
-        "[<n>] left": Key("left:%(n)d"),
-        "[<n>] right": Key("right:%(n)d"),
-
-	"assign": Key("space,equal,space"),
-	"plus": Key("space,plus,space"),
-	"minus": Key("space,minus,space"),
-	"times": Key("space,asterisk,space"),
-	"equals": Key("space,equal,equal,space"),
-	"not equals": Key("space,exclamation,equal,space"),
-	"triple quote": Key("dquote,dquote,dquote"),
-	"ref": Key("asterisk"),
-	#"semi": Key("semi-colon"),
-
-	#C++
-	"int": Text("int "),
-	"for loop": Text("for(int i = 0; i < y; i++)"),
-	"include": Text("#include <>") + Key("left"),
-	"include local": Text('#include ""') + Key("left"),
-	"pragma once": Text("#pragma once"),
-
-    }
-    extras = [
-        Dictation("text"),
-        IntegerRef("n", 1, 50),
-    ]
-    defaults = {
-        "n": 1,
-    }
-
-
-#---------------------------------------------------------------------------
-
-gvim_exec_context = AppContext(executable="gvim")
-# set the window title to vim in the putty session for the following context to
-# work.
-vim_putty_context = AppContext(title="vim")
-gvim_context = (gvim_exec_context | vim_putty_context)
-
-# set up the grammar for vim's ex mode
-exModeBootstrap = Grammar("ExMode bootstrap", context=gvim_context)
-exModeBootstrap.add_rule(ExModeEnabler())
-exModeBootstrap.load()
-ExModeGrammar = Grammar("ExMode grammar", context=gvim_context)
-ExModeGrammar.add_rule(ExModeCommands())
-ExModeGrammar.add_rule(ExModeDisabler())
-ExModeGrammar.load()
-ExModeGrammar.disable()
-
-
+# set up the grammar for vim's normal mode and start normal mode
+normalModeGrammar = Grammar("clion", context=clion_context)
+normalModeGrammar.add_rule(navigation_rule)
+normalModeGrammar.add_rule(NormalModeRepeatRule())	
+normalModeGrammar.load()
 
 # set up the grammar for vim's insert mode
-InsertModeBootstrap = Grammar("InsertMode bootstrap", context=gvim_context)
+InsertModeBootstrap = Grammar("InsertMode bootstrap", context=clion_context)
 InsertModeBootstrap.add_rule(InsertModeEnabler())
 InsertModeBootstrap.load()
-InsertModeGrammar = Grammar("InsertMode grammar", context=gvim_context)
+InsertModeGrammar = Grammar("InsertMode grammar", context=clion_context)
 InsertModeGrammar.add_rule(InsertModeCommands())
 InsertModeGrammar.add_rule(InsertModeDisabler())
-InsertModeGrammar.add_rule(FormatRule())
+#InsertModeGrammar.add_rule(FormatRule())
 InsertModeGrammar.load()
 InsertModeGrammar.disable()
 
 
-
-# set up the grammar for vim's normal mode and start normal mode
-normalModeGrammar = Grammar("gvim", context=gvim_context)
-normalModeGrammar.add_rule(NormalModeRepeatRule())
-normalModeGrammar.add_rule(gvim_window_rule)
-normalModeGrammar.add_rule(gvim_tabulator_rule)
-normalModeGrammar.add_rule(gvim_general_rule)
-normalModeGrammar.add_rule(gvim_navigation_rule)
-normalModeGrammar.load()
-
-
-
-# Unload function which will be called at unload time.
 def unload():
     global normalModeGrammar
     if normalModeGrammar: normalModeGrammar.unload()
     normalModeGrammar = None
 
-    global ExModeGrammar
-    if ExModeGrammar: ExModeGrammar.unload()
-    ExModeGrammar = None
-
     global InsertModeGrammar
     if InsertModeGrammar: InsertModeGrammar.unload()
     InsertModeGrammar = None
+
+
