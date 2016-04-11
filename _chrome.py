@@ -18,8 +18,6 @@ class GlobalChromeMappings(MappingRule):
         'labels': Key('f'),                         # vimium
 
         '[go to] label <number>': Text('%(number)d'),    # vimium
-	'[<number>] down': Key('pgdown/2:%(number)d'),
-	'[<number>] up': Key('pgup/2:%(number)d'),
 	'find': Key('c-f'),
 	'search <text>': Key('c-l') + Text('%(text)s\r'),
         }

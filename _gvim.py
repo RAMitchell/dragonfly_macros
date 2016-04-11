@@ -273,8 +273,8 @@ class NormalModeKeystrokeRule(MappingRule):
         "visual line": Key("s-v"),
         "visual block": Key("c-v"),
 
-        "next": Key("n"),
-        "previous": Key("N"),
+        #"next": Key("n"),
+        #"previous": Key("N"),
         "[<n>] back": Key("b:%(n)d"),
         "[<n>] whiskey": Key("w:%(n)d"),
         "[<n>] end": Key("e:%(n)d"),
@@ -282,7 +282,7 @@ class NormalModeKeystrokeRule(MappingRule):
         "Center": Key("z,dot"),
         "format": Key("g,q"),
 
-		"indent": Key("g, g, equal, G"),
+	"indent": Key("g, g, equal, G"),
 		
         "next paragraph": Key("rbrace"),
         "previous paragraph": Key("lbrace"),
@@ -298,6 +298,7 @@ class NormalModeKeystrokeRule(MappingRule):
         "[<n>] join": Key("J:%(n)d"),
 
         "(delete | D.)": Key("d"),
+    	"[<n>] slice":  Text("%(n)ddd"), #Key("d/3,d"), 
         "[<n>] (delete | D.) (whiskey|word)": Text("%(n)ddw"),
         "(delete | D.) a (whiskey | word)": Key("d,a,w"),
         "(delete | D.) inner (whiskey | word)": Key("d,i,w"),
@@ -349,7 +350,7 @@ class NormalModeKeystrokeRule(MappingRule):
 
 	#C++ specific
 	"compile": Key("colon, w, enter") + Key("colon, m, a, k, e, enter"),
-	"run": Key("colon, exclamation, a, dot, e, x, e, enter"),
+	#"run": Key("colon, exclamation, a, dot, e, x, e, enter"),
 	"check errors": Key("colon, c, w, enter"),
 	"quit": Key("colon, q, enter"),
 
@@ -473,10 +474,12 @@ gvim_tabulator_rule = MappingRule(
     name = "gvim_tabulators",
     mapping = {
         # tabulator navigation commands
-        "tabulator next": Key("g,t"),
-        "tabulator previous": Key("g,T"),
+        "next": Key("g,t"),
+        "previous": Key("g,T"),
         },
     extras = [
+            IntegerRef("n", 1, 100),
+	 
         ]
 )
 
@@ -506,7 +509,7 @@ gvim_navigation_rule = MappingRule(
         "cursor (low | bottom)": Key("s-l"),
 
         # line navigation
-        "go <line>": Key("colon") + Text("%(line)s\n"),
+        "go <line>": Key("colon/10") + Text("%(line)d\n"),
 
         # searching
         "search": Key("slash"),
@@ -674,6 +677,8 @@ class InsertModeCommands(MappingRule):
         "(scratch|delete) line": Key("c-u"),
         "[<n>] left": Key("left:%(n)d"),
         "[<n>] right": Key("right:%(n)d"),
+	"home": Key("home"),
+	"end": Key("end"),
 
 	"assign": Key("space,equal,space"),
 	"plus": Key("space,plus,space"),
@@ -686,11 +691,27 @@ class InsertModeCommands(MappingRule):
 	#"semi": Key("semi-colon"),
 
 	#C++
+	"vector|victor": Text("vector<>") +  Key("left"),
+	"string": Text("string"),
+	"standard": Text("std::"),
 	"int": Text("int "),
-	"for loop": Text("for(int i = 0; i < y; i++)"),
+	"double": Text("double "),
+	"float": Text("float "),
+	"void": Text("void "),
+	"char": Text("char "),
+	"struct": Text("struct ", static=True),
+	"for loop": Text("for(int i = 0; i < ; i++)") +  Key("left:6"),
+	"if": Key("i, f, lparen, rparen, left"),
 	"include": Text("#include <>") + Key("left"),
 	"include local": Text('#include ""') + Key("left"),
 	"pragma once": Text("#pragma once"),
+	"see out": Text("std::cout << "),
+	"type def": Text("typedef "),
+	"device": Text("__device__ "),
+	"(vic|vec) three": Text("Vec3"),
+	"const": Text("const "),
+
+	"template": Text("template <typename T>"),
 
     }
     extras = [
@@ -708,7 +729,9 @@ gvim_exec_context = AppContext(executable="gvim")
 # set the window title to vim in the putty session for the following context to
 # work.
 vim_putty_context = AppContext(title="vim")
-gvim_context = (gvim_exec_context | vim_putty_context)
+vs_context = AppContext( title = "Visual Studio")
+clion_context = AppContext( title = "clion")
+gvim_context = (gvim_exec_context | vim_putty_context | vs_context | clion_context)
 
 # set up the grammar for vim's ex mode
 exModeBootstrap = Grammar("ExMode bootstrap", context=gvim_context)
@@ -746,6 +769,7 @@ normalModeGrammar.load()
 
 
 
+
 # Unload function which will be called at unload time.
 def unload():
     global normalModeGrammar
@@ -759,3 +783,4 @@ def unload():
     global InsertModeGrammar
     if InsertModeGrammar: InsertModeGrammar.unload()
     InsertModeGrammar = None
+
