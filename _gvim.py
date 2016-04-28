@@ -712,6 +712,9 @@ class InsertModeCommands(MappingRule):
 	"const": Text("const "),
 
 	"template": Text("template <typename T>"),
+	"global": Text("__global__ "),
+	"compute": Text("compute::"),
+	"boost": Text("boost::"),
 
     }
     extras = [
@@ -731,7 +734,8 @@ gvim_exec_context = AppContext(executable="gvim")
 vim_putty_context = AppContext(title="vim")
 vs_context = AppContext( title = "Visual Studio")
 clion_context = AppContext( title = "clion")
-gvim_context = (gvim_exec_context | vim_putty_context | vs_context | clion_context)
+intellij_context = AppContext( title = "intellij")
+gvim_context = (gvim_exec_context | vim_putty_context | vs_context | clion_context | intellij_context)
 
 # set up the grammar for vim's ex mode
 exModeBootstrap = Grammar("ExMode bootstrap", context=gvim_context)

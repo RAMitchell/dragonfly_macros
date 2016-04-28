@@ -11,6 +11,7 @@ class  GlobalClionMappings(MappingRule):
 	"rename":   Key("shift:down,f6/10, shift:up"),
 	"run": Key("s-f10"),
 	"debug": Key("s-f9"),
+	"build": Key("c-f9"),
 	"stop": Key("c-f2"),
 
         }
