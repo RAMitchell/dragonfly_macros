@@ -92,8 +92,6 @@ class TelephonyRule(MappingRule):
         'percent': Key('percent'),
         'plus': Key('plus'),
         'question': Key('question'),
-        # Getting Invalid key name: 'semicolon'
-	'semi':  Text(';'),
         'slash': Key('slash'),
         'single quote': Key('squote'),
         'tilde': Key('tilde'),
@@ -102,11 +100,11 @@ class TelephonyRule(MappingRule):
         'langle': Key('langle'),
         'lace': Key('lbrace'),
         'lack': Key('lbracket'),
-        'lapen': Key('lparen'),
+        'laip': Key('lparen'),
         'rangle': Key('rangle'),
         'race': Key('rbrace'),
         'rack': Key('rbracket'),
-        'rapen': Key('rparen'),
+        'raip': Key('rparen'),
     }
 
 telephony_single = Alternative([RuleRef(rule=TelephonyRule())])
@@ -127,7 +125,7 @@ class GlobalMappings(MappingRule):
 			'flip <n>': Key('w-t/5, right:%(n)d/10, enter'),
 			'jump <n>': Key('win:down, alt:down, %(n)d, win:up, alt:up, down'), 
 			'exit|exerpt': Key('a-f4'),
-			'sea lion|line': Text('clion'),
+			"desktop": Key("w-d"),
 			}
 	extras = [
 			Integer('n', 0, 30	),	

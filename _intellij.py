@@ -5,7 +5,7 @@ from dragonfly import (Grammar, AppContext, MappingRule, Integer, Key, Dictation
 class  GlobalIntelliJMappings(MappingRule):
     mapping = {
         #ide shortcuts
-        "helper": Key("a-enter"),
+	"helper": Key("alt:down,enter/5,alt:up"),
         "reformat": Key("ctrl:down, a-l, ctrl:up"),
         "project": Key("ctrl:down, tab:down/10,1/10,tab:up,ctrl:up"), 
 	"rename":   Key("shift:down,f6/10, shift:up"),
@@ -20,7 +20,7 @@ class  GlobalIntelliJMappings(MappingRule):
         Integer("line", 1, 10000)
         ]
 
-context = AppContext(executable='idea64')
+context = AppContext(title='intellij')
 grammar=Grammar('IntelliJ',context=context)
 grammar.add_rule(GlobalIntelliJMappings())
 grammar.load()

@@ -15,7 +15,7 @@ class GlobalChromeMappings(MappingRule):
         'forward': Key('a-right'),
         'address': Key('c-l'),
         'reload page': Key('f5'),
-        'labels': Key('f'),                         # vimium
+        'link': Key('f'),                         # vimium
 
         '[go to] label <number>': Text('%(number)d'),    # vimium
 	'find': Key('c-f'),

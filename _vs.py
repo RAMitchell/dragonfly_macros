@@ -8,7 +8,13 @@ class  GlobalVSMappings(MappingRule):
 	"run": Key("c-f5"),
 	"device vector": Text("thrust::device_vector<"),
 	"thrust": Text("thrust::"),
-	"(<n>) next tab": Key("ctrl:down,alt:down/10,pgdown/10,ctrl:up,alt:up"),
+	"(<n>) next tab": Key("ctrl:down,alt:down/2,pgdown/2,ctrl:up,alt:up"),
+	"reformat": Key("ctrl:down,alt:down/10,enter,alt:up,ctrl:up"),
+	"code": Key("ctrl:down,alt:down/1,0/1,alt:up,ctrl:up"),
+	"output": Key("a-2"),
+	"rename": Key("c-r,r/1"),
+	"bop": Key("c-pgdown"),
+	"doc": Key("ctrl:down, shift:down/2, d/2, ctrl:up, shift:up"),
 
         }
     extras = [

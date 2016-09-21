@@ -151,8 +151,6 @@ class LetterRule(MappingRule):
         'percent': Key('percent'),
         'plus': Key('plus'),
         'question': Key('question'),
-        # Getting Invalid key name: 'semicolon'
-        #'semicolon': Key('semicolon'),
         'slash': Key('slash'),
         'single quote': Key('squote'),
         'tilde': Key('tilde'),
@@ -161,11 +159,9 @@ class LetterRule(MappingRule):
         'langle': Key('langle'),
         'lace': Key('lbrace'),
         'lack': Key('lbracket'),
-        'lapen': Key('lparen'),
         'rangle': Key('rangle'),
         'race': Key('rbrace'),
         'rack': Key('rbracket'),
-        'rapen': Key('rparen'),
     }
 
 letter = RuleRef(rule=LetterRule(), name='letter')
@@ -248,6 +244,8 @@ class NormalModeKeystrokeRule(MappingRule):
     exported = False
 
     mapping = {
+	    "done": Key("escape"),
+
         "slap": Key("enter"),
         "[<n>] up": Key("k:%(n)d"),
         "[<n>] down": Key("j:%(n)d"),
@@ -293,8 +291,6 @@ class NormalModeKeystrokeRule(MappingRule):
         "[<n>] backspace": Key("backspace:%(n)d"),
 
 
-        "[<n>] Pete macro": Key("at,at:%(n)d"),
-
         "[<n>] join": Key("J:%(n)d"),
 
         "(delete | D.)": Key("d"),
@@ -335,7 +331,7 @@ class NormalModeKeystrokeRule(MappingRule):
         "(yank | copy) a (paren|parenthesis|raip|laip)": Key("y,a,rparen"),
         "(yank | copy) inner (paren|parenthesis|raip|laip)": Key("y,i,rparen"),
         
-        "copy line": Key("y,y"),
+        "copy line": Key("y/1,y"),
 
         "paste": Key("p"),
         "shift paste": Key("P"),
@@ -626,11 +622,9 @@ class InsertModeEnabler(CompoundRule):
         "(after | append)": "a",
         "shift (after | append)": "A",
 
-        "oh": "o",
+        "(oh | though)": "o",
         "shift oh": "O",
 
-	# Jedi vim rename command
-	"rename": "backslash,r",
     })]
 
     def _process_recognition(self, node, extras):
@@ -688,7 +682,8 @@ class InsertModeCommands(MappingRule):
 	"not equals": Key("space,exclamation,equal,space"),
 	"triple quote": Key("dquote,dquote,dquote"),
 	"ref": Key("asterisk"),
-	#"semi": Key("semi-colon"),
+
+	"semi": Key("end/1") +  Text(";"),
 
 	#C++
 	"vector|victor": Text("vector<>") +  Key("left"),
@@ -701,7 +696,10 @@ class InsertModeCommands(MappingRule):
 	"char": Text("char "),
 	"struct": Text("struct ", static=True),
 	"for loop": Text("for(int i = 0; i < ; i++)") +  Key("left:6"),
-	"if": Key("i, f, lparen, rparen, left"),
+	"for loop jay": Text("for(int j = 0; j < ; j++)") +  Key("left:6"),
+	"if": Text("if()")+Key("left"),
+	"else if": Text("else if()")+Key("left"),
+	"else": Text("else{"),
 	"include": Text("#include <>") + Key("left"),
 	"include local": Text('#include ""') + Key("left"),
 	"pragma once": Text("#pragma once"),
@@ -710,11 +708,21 @@ class InsertModeCommands(MappingRule):
 	"device": Text("__device__ "),
 	"(vic|vec) three": Text("Vec3"),
 	"const": Text("const "),
+	"print eff": Text('printf("\\n")')  + Key("left:4"),
 
 	"template": Text("template <typename T>"),
 	"global": Text("__global__ "),
 	"compute": Text("compute::"),
 	"boost": Text("boost::"),
+	"eigen": Text("Eigen::"),
+
+	"force in line": Text("__forceinline__ "),
+
+	"thread ID": Text("threadIdx.x "),
+	"block ID": Text("blockIdx.x "),
+
+	#Java
+	"print line" : Text("System.out.println("),
 
     }
     extras = [
@@ -731,11 +739,12 @@ class InsertModeCommands(MappingRule):
 gvim_exec_context = AppContext(executable="gvim")
 # set the window title to vim in the putty session for the following context to
 # work.
-vim_putty_context = AppContext(title="vim")
+vim_context = AppContext(title="vim")
 vs_context = AppContext( title = "Visual Studio")
 clion_context = AppContext( title = "clion")
 intellij_context = AppContext( title = "intellij")
-gvim_context = (gvim_exec_context | vim_putty_context | vs_context | clion_context | intellij_context)
+overleaf_context = AppContext( title = "overleaf")
+gvim_context = (gvim_exec_context | vim_context | vs_context | clion_context | intellij_context | overleaf_context)
 
 # set up the grammar for vim's ex mode
 exModeBootstrap = Grammar("ExMode bootstrap", context=gvim_context)
@@ -756,7 +765,7 @@ InsertModeBootstrap.load()
 InsertModeGrammar = Grammar("InsertMode grammar", context=gvim_context)
 InsertModeGrammar.add_rule(InsertModeCommands())
 InsertModeGrammar.add_rule(InsertModeDisabler())
-InsertModeGrammar.add_rule(FormatRule())
+#InsertModeGrammar.add_rule(FormatRule())
 InsertModeGrammar.load()
 InsertModeGrammar.disable()
 
