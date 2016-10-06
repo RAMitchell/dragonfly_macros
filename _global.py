@@ -126,6 +126,7 @@ class GlobalMappings(MappingRule):
 			'jump <n>': Key('win:down, alt:down, %(n)d, win:up, alt:up, down'), 
 			'exit|exerpt': Key('a-f4'),
 			"desktop": Key("w-d"),
+			"cuda": Text("cuda "),
 			}
 	extras = [
 			Integer('n', 0, 30	),	

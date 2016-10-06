@@ -268,7 +268,7 @@ class NormalModeKeystrokeRule(MappingRule):
         "swap case": Key("tilde"),
 
         "visual": Key("v"),
-        "visual line": Key("s-v"),
+        "line": Key("s-v"),
         "visual block": Key("c-v"),
 
         #"next": Key("n"),
@@ -331,7 +331,7 @@ class NormalModeKeystrokeRule(MappingRule):
         "(yank | copy) a (paren|parenthesis|raip|laip)": Key("y,a,rparen"),
         "(yank | copy) inner (paren|parenthesis|raip|laip)": Key("y,i,rparen"),
         
-        "copy line": Key("y/1,y"),
+        "shift": Key("y,y"),
 
         "paste": Key("p"),
         "shift paste": Key("P"),
@@ -717,6 +717,7 @@ class InsertModeCommands(MappingRule):
 	"eigen": Text("Eigen::"),
 
 	"force in line": Text("__forceinline__ "),
+	"(in-line| in nine | in line)": Text("inline "),
 
 	"thread ID": Text("threadIdx.x "),
 	"block ID": Text("blockIdx.x "),

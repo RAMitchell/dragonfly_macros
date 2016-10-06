@@ -15,6 +15,8 @@ class  GlobalVSMappings(MappingRule):
 	"rename": Key("c-r,r/1"),
 	"bop": Key("c-pgdown"),
 	"doc": Key("ctrl:down, shift:down/2, d/2, ctrl:up, shift:up"),
+	"comment": Key("c-k, c-c, escape"),
+	"uncomment": Key("c-k, c-u, escape"),
 
         }
     extras = [
