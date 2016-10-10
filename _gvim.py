@@ -333,7 +333,7 @@ class NormalModeKeystrokeRule(MappingRule):
         
         "shift": Key("y,y"),
 
-        "paste": Key("p"),
+        "[<n>] paste": Text("%(n)dp"),
         "shift paste": Key("P"),
 
         "replace": Key("r"),
@@ -344,10 +344,6 @@ class NormalModeKeystrokeRule(MappingRule):
 
         "fuzzy find": Key("backslash,t"),
 
-	#C++ specific
-	"compile": Key("colon, w, enter") + Key("colon, m, a, k, e, enter"),
-	#"run": Key("colon, exclamation, a, dot, e, x, e, enter"),
-	"check errors": Key("colon, c, w, enter"),
 	"quit": Key("colon, q, enter"),
 
 	#registers
@@ -356,6 +352,17 @@ class NormalModeKeystrokeRule(MappingRule):
 
 	#shortcuts
 	"save": Key("colon, w, enter"),
+
+        #marks
+        "mark one": Key("m,A"),
+        "mark two": Key("m,B"),
+        "mark three": Key("m,C"),
+        "mark four": Key("m,D"),
+        "fetch one": Key("apostrophe,A"),
+        "fetch two": Key("apostrophe,B"),
+        "fetch three": Key("apostrophe,C"),
+        "fetch four": Key("apostrophe,D"),
+
 
     }
     extras   = [
