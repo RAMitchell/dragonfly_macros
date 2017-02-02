@@ -124,10 +124,11 @@ class GlobalMappings(MappingRule):
 			'slap': Key('enter'),
 			'flip <n>': Key('w-t/5, right:%(n)d/10, enter'),
 			'flip': Key('a-tab'),
-			'jump <n>': Key('win:down, alt:down, %(n)d, win:up, alt:up, down'), 
 			'exit|exerpt': Key('a-f4'),
 			"desktop": Key("w-d"),
 			"cuda": Text("cuda "),
+                        "lard": Key("c-c"),
+                        "card": Key("c-v"),
 
                         "menu": Key("s-f10"),
                         "task": Key("w-tab"),

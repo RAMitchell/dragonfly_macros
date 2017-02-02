@@ -339,7 +339,7 @@ class NormalModeKeystrokeRule(MappingRule):
         "replace": Key("r"),
         "shift replace": Key("R"),
 
-        "shift left": Key("langle,langle"),
+        "shift left": Key("langle/50,langle"),
         "shift right": Key("rangle,rangle"),
 
         "fuzzy find": Key("backslash,t"),
@@ -363,6 +363,8 @@ class NormalModeKeystrokeRule(MappingRule):
         "fetch three": Key("apostrophe,C"),
         "fetch four": Key("apostrophe,D"),
 
+        "comment start": Key('o, slash, asterisk, escape'),
+        "comment end": Key('o, asterisk, slash, escape'),
 
     }
     extras   = [
@@ -715,7 +717,10 @@ class InsertModeCommands(MappingRule):
 	"device": Text("__device__ "),
 	"(vic|vec) three": Text("Vec3"),
 	"const": Text("const "),
+	"return": Text("return "),
 	"print eff": Text('printf("\\n")')  + Key("left:4"),
+        "comment start": Key('slash, asterisk'),
+        "comment end": Key('asterisk, slash'),
 
 	"template": Text("template <typename T>"),
 	"global": Text("__global__ "),

@@ -6,6 +6,7 @@ class  GlobalVSMappings(MappingRule):
     mapping = {
         #ide shortcuts
 	"run": Key("c-f5"),
+	"build": Key("f7"),
 	"device vector": Text("thrust::device_vector<"),
 	"thrust": Text("thrust::"),
 	"(<n>) next tab": Key("ctrl:down,alt:down/2,pgdown/2,ctrl:up,alt:up"),
