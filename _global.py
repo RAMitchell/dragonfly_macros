@@ -1,7 +1,8 @@
 from dragonfly import *
 
+
 class TelephonyRule(MappingRule):
-    exported = True 
+    exported = True
     mapping = {
         'alpha': Key('a', static=True),
         'bravo': Key('b', static=True),
@@ -30,32 +31,32 @@ class TelephonyRule(MappingRule):
         'yankee': Key('y', static=True),
         'zulu': Key('z', static=True),
 
-        'upper alpha': Key('A', static=True),
-        'upper bravo': Key('B', static=True),
-        'upper charlie': Key('C', static=True),
-        'upper delta': Key('D', static=True),
-        'upper echo': Key('E', static=True),
-        'upper foxtrot': Key('F', static=True),
-        'upper golf': Key('G', static=True),
-        'upper hotel': Key('H', static=True),
-        'upper india': Key('I', static=True),
-        'upper juliet': Key('J', static=True),
-        'upper kilo': Key('K', static=True),
-        'upper lima': Key('L', static=True),
-        'upper mike': Key('M', static=True),
-        'upper november': Key('N', static=True),
-        'upper oscar': Key('O', static=True),
-        'upper papa': Key('P', static=True),
-        'upper queen': Key('Q', static=True),
-        'upper romeo': Key('R', static=True),
-        'upper suk': Key('S', static=True),
-        'upper tango': Key('T', static=True),
-        'upper uniform': Key('U', static=True),
-        'upper venous': Key('V', static=True),
-        'upper whiskey': Key('W', static=True),
-        'upper x-ray': Key('X', static=True),
-        'upper yankee': Key('Y', static=True),
-        'upper zulu': Key('Z', static=True),
+        'up alpha': Key('A', static=True),
+        'up bravo': Key('B', static=True),
+        'up charlie': Key('C', static=True),
+        'up delta': Key('D', static=True),
+        'up echo': Key('E', static=True),
+        'up foxtrot': Key('F', static=True),
+        'up golf': Key('G', static=True),
+        'up hotel': Key('H', static=True),
+        'up india': Key('I', static=True),
+        'up juliet': Key('J', static=True),
+        'up kilo': Key('K', static=True),
+        'up lima': Key('L', static=True),
+        'up mike': Key('M', static=True),
+        'up november': Key('N', static=True),
+        'up oscar': Key('O', static=True),
+        'up papa': Key('P', static=True),
+        'up queen': Key('Q', static=True),
+        'up romeo': Key('R', static=True),
+        'up suk': Key('S', static=True),
+        'up tango': Key('T', static=True),
+        'up uniform': Key('U', static=True),
+        'up venous': Key('V', static=True),
+        'up whiskey': Key('W', static=True),
+        'up x-ray': Key('X', static=True),
+        'up yankee': Key('Y', static=True),
+        'up zulu': Key('Z', static=True),
 
         'zero': Key('0'),
         'one': Key('1'),
@@ -104,11 +105,13 @@ class TelephonyRule(MappingRule):
         'rangle': Key('rangle'),
         'race': Key('rbrace'),
         'rack': Key('rbracket'),
-        'raip': Key('rparen'),
+        '(raip|right)': Key('rparen'),
     }
+
 
 telephony_single = Alternative([RuleRef(rule=TelephonyRule())])
 telephony_sequence = Repetition(telephony_single, min=1, max=10, name="telephony_sequence")
+
 
 class RepeatTelephony(CompoundRule):
     spec = '<telephony_sequence>'
@@ -118,29 +121,33 @@ class RepeatTelephony(CompoundRule):
         for action in extras['telephony_sequence']:
             action.execute()
 
+
 class GlobalMappings(MappingRule):
-	mapping = {
+    mapping = {
 
-			'slap': Key('enter'),
-			'flip <n>': Key('w-t/5, right:%(n)d/10, enter'),
-			'flip': Key('a-tab'),
-			'exit|exerpt': Key('a-f4'),
-			"desktop": Key("w-d"),
-			"cuda": Text("cuda "),
-                        "lard": Key("c-c"),
-                        "card": Key("c-v"),
+        'slap': Key('enter'),
+        'flip <n>': Key('w-t/5, right:%(n)d/10, enter'),
+        'flip': Key('a-tab'),
+        'exit|exerpt': Key('a-f4'),
+        "desktop": Key("w-d"),
+        "cuda": Text("cuda "),
+        "lard": Key("c-c"),
+        "card": Key("c-v"),
+        "pop": Key("shift:down/2, insert, shift:up"),
+        "menu": Key("s-f10"),
+        "task": Key("w-tab"),
+    }
+    extras = [
+        Integer('n', 0, 30),
 
-                        "menu": Key("s-f10"),
-                        "task": Key("w-tab"),
-			}
-	extras = [
-			Integer('n', 0, 30	),	
+    ]
 
-			]
+
 grammar = Grammar('Global')
 grammar.add_rule(RepeatTelephony())
 grammar.add_rule(GlobalMappings())
 grammar.load()
+
 
 def unload():
     global grammar

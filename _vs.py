@@ -10,14 +10,16 @@ class  GlobalVSMappings(MappingRule):
 	"device vector": Text("thrust::device_vector<"),
 	"thrust": Text("thrust::"),
 	"(<n>) next tab": Key("ctrl:down,alt:down/2,pgdown/2,ctrl:up,alt:up"),
-	"reformat": Key("ctrl:down,alt:down/10,enter,alt:up,ctrl:up"),
+	"reformat": Key("ctrl:down,r/10,ctrl:up,ctrl:down,f/10,ctrl:up"),
 	"code": Key("ctrl:down,alt:down/1,0/1,alt:up,ctrl:up"),
 	"output": Key("a-2"),
 	"rename": Key("c-r,r/1"),
+	"blast": Key("c-r,r/10,end/10,underscore/10,enter/10"),
 	"bop": Key("c-pgdown"),
 	"doc": Key("ctrl:down, shift:down/2, d/2, ctrl:up, shift:up"),
 	"comment": Key("c-k, c-c, escape"),
 	"uncomment": Key("c-k, c-u, escape"),
+	"camel": Key("ctrl:down,shift:down/1,k/1,shift:up,ctrl:up,ctrl:down,shift:down/1,c/1,shift:up,ctrl:up"),
 
         }
     extras = [

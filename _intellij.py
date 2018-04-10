@@ -20,7 +20,7 @@ class  GlobalIntelliJMappings(MappingRule):
         Integer("line", 1, 10000)
         ]
 
-context = AppContext(title='intellij')
+context = AppContext(title='intellij') | AppContext(title='pycharm')
 grammar=Grammar('IntelliJ',context=context)
 grammar.add_rule(GlobalIntelliJMappings())
 grammar.load()

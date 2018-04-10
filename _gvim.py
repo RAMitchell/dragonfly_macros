@@ -251,7 +251,7 @@ class NormalModeKeystrokeRule(MappingRule):
         "[<n>] down": Key("j:%(n)d"),
         "[<n>] down": Key("j:%(n)d"),
         "[<n>] left": Key("h:%(n)d"),
-        "[<n>] right": Key("l:%(n)d"),
+        #"[<n>] right": Key("l:%(n)d"),
         "[<n>] go up": Key("c-b:%(n)d"),
         "[<n>] go down": Key("c-f:%(n)d"),
         "hat": Key("caret"),
@@ -679,7 +679,7 @@ class InsertModeCommands(MappingRule):
         "[<n>] backspace": Key("backspace:%(n)d"),
         "(scratch|delete) line": Key("c-u"),
         "[<n>] left": Key("left:%(n)d"),
-        "[<n>] right": Key("right:%(n)d"),
+        #"[<n>] right": Key("right:%(n)d"),
 	"home": Key("home"),
 	"end": Key("end"),
 
@@ -689,7 +689,6 @@ class InsertModeCommands(MappingRule):
 	"times": Key("space,asterisk,space"),
 	"equals": Key("space,equal,equal,space"),
 	"not equals": Key("space,exclamation,equal,space"),
-	"triple quote": Key("dquote,dquote,dquote"),
 	"ref": Key("asterisk"),
 
 	"semi": Key("end/1") +  Text(";"),
@@ -697,15 +696,17 @@ class InsertModeCommands(MappingRule):
 	#C++
 	"vector|victor": Text("vector<>") +  Key("left"),
 	"string": Text("string"),
+        "static cast": Text("static_cast<>(") + Key("left:2"),
 	"standard": Text("std::"),
-	"int": Text("int "),
+	"integer": Text("int "),
+        "size tee": Text("size_t "),
 	"double": Text("double "),
 	"float": Text("float "),
 	"void": Text("void "),
 	"char": Text("char "),
+	"auto": Text("auto "),
 	"struct": Text("struct ", static=True),
 	"for loop": Text("for(int i = 0; i < ; i++)") +  Key("left:6"),
-	"for loop jay": Text("for(int j = 0; j < ; j++)") +  Key("left:6"),
 	"if": Text("if()")+Key("left"),
 	"else if": Text("else if()")+Key("left"),
 	"else": Text("else{"),
@@ -719,23 +720,12 @@ class InsertModeCommands(MappingRule):
 	"const": Text("const "),
 	"return": Text("return "),
 	"print eff": Text('printf("\\n")')  + Key("left:4"),
-        "comment start": Key('slash, asterisk'),
-        "comment end": Key('asterisk, slash'),
 
 	"template": Text("template <typename T>"),
 	"global": Text("__global__ "),
-	"compute": Text("compute::"),
-	"boost": Text("boost::"),
-	"eigen": Text("Eigen::"),
-
-	"force in line": Text("__forceinline__ "),
-	"(in-line| in nine | in line)": Text("inline "),
 
 	"thread ID": Text("threadIdx.x "),
 	"block ID": Text("blockIdx.x "),
-
-	#Java
-	"print line" : Text("System.out.println("),
 
     }
     extras = [
@@ -757,7 +747,8 @@ vs_context = AppContext( title = "Visual Studio")
 clion_context = AppContext( title = "clion")
 intellij_context = AppContext( title = "intellij")
 overleaf_context = AppContext( title = "overleaf")
-gvim_context = (gvim_exec_context | vim_context | vs_context | clion_context | intellij_context | overleaf_context)
+pycharm_context = AppContext( title = "pycharm")
+gvim_context = (gvim_exec_context | vim_context | vs_context | clion_context | intellij_context | overleaf_context | pycharm_context)
 
 # set up the grammar for vim's ex mode
 exModeBootstrap = Grammar("ExMode bootstrap", context=gvim_context)
