@@ -17,6 +17,7 @@ class CMDMappings(MappingRule):
         'get commit': Text('git commit -m""') + Key('left'),
         'get commit amend': Text('git commit --amend --no-edit -a'),
         'get push': Text('git push origin HEAD'),
+        'history': Text('history\n'),
         'python': Text('python '),
         'run': Key('up, enter'),
         'run second': Text('!-2\n'),
@@ -29,7 +30,7 @@ class CMDMappings(MappingRule):
 
 
 context = AppContext(executable='cmd') | AppContext(title='MINGW') | AppContext(executable='putty') | AppContext(
-    executable='mintty') | AppContext(executable='MobaXterm')
+    executable='mintty') | AppContext(executable='MobaXterm') | AppContext(executable='powershell')
 grammar = Grammar('cmd', context=context)
 grammar.add_rule(CMDMappings())
 grammar.load()

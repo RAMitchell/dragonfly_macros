@@ -5,7 +5,7 @@ class TelephonyRule(MappingRule):
     exported = True
     mapping = {
         'alpha': Key('a', static=True),
-        'bravo': Key('b', static=True),
+        'bat': Key('b', static=True),
         'charlie': Key('c', static=True),
         'delta': Key('d', static=True),
         'echo': Key('e', static=True),
@@ -32,7 +32,7 @@ class TelephonyRule(MappingRule):
         'zulu': Key('z', static=True),
 
         'up alpha': Key('A', static=True),
-        'up bravo': Key('B', static=True),
+        'up bat': Key('B', static=True),
         'up charlie': Key('C', static=True),
         'up delta': Key('D', static=True),
         'up echo': Key('E', static=True),
