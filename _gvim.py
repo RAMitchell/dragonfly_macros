@@ -41,11 +41,6 @@ within this callback is very simple:
 
 """
 
-try:
-    import pkg_resources
-    pkg_resources.require("dragonfly >= 0.6.5beta1.dev-r99")
-except ImportError:
-    pass
 
 from dragonfly import *
 
@@ -542,10 +537,10 @@ class ExModeEnabler(CompoundRule):
         normalModeGrammar.disable()
         ExModeGrammar.enable()
         Key("colon").execute()
-        print "ExMode grammar enabled"
-        print "Available commands:"
-        print '  \n'.join(ExModeCommands.mapping.keys())
-        print "\n(EX MODE)"
+        print ("ExMode grammar enabled")
+        print ("Available commands:")
+        print ('  \n'.join(ExModeCommands.mapping.keys()))
+        print ("\n(EX MODE)")
 
 
 
@@ -562,12 +557,12 @@ class ExModeDisabler(CompoundRule):
         exModeBootstrap.enable()
         normalModeGrammar.enable()
         if extras["command"] == "cancel":
-            print "ex mode command canceled"
+            print ("ex mode command canceled")
             Key("escape").execute()
         else:
-            print "ex mode command accepted"
+            print ("ex mode command accepted")
             Key("enter").execute()
-        print "\n(NORMAL)"
+        print ("\n(NORMAL)")
 
 # handles ExMode control structures
 class ExModeCommands(MappingRule):
@@ -643,9 +638,9 @@ class InsertModeEnabler(CompoundRule):
         for string in extras["command"].split(','):
             key = Key(string)
             key.execute()
-        print "Available commands:"
-        print '  \n'.join(InsertModeCommands.mapping.keys())
-        print "\n(INSERT)"
+        print ("Available commands:")
+        print ('  \n'.join(InsertModeCommands.mapping.keys()))
+        print ("\n(INSERT)")
 
 
 
@@ -664,10 +659,10 @@ class InsertModeDisabler(CompoundRule):
         Key("escape").execute()
         if extras["command"] == "cancel":
             Key("u").execute()
-            print "Insert command canceled"
+            print ("Insert command canceled")
         else:
-            print "Insert command accepted"
-        print "\n(NORMAL)"
+            print ("Insert command accepted")
+        print ("\n(NORMAL)")
 
 
 # handles InsertMode control structures
